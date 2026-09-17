@@ -21,6 +21,7 @@ class Student(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     roll_number = db.Column(db.String(20), nullable=False)
     class_id = db.Column(db.Integer, db.ForeignKey('student_class.id'), nullable=False)
+    student_user = db.relationship('User')
 
 class Attendance(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -8,11 +8,10 @@
 
     <h3>Your Classes</h3>
     <ul>
-        {% for c in classes %}
-            <li>{{ c.class_name }}</li>
-        {% else %}
-            <li>No classes yet. Create one above.</li>
-        {% endfor %}
-    </ul>
-</body>
+    {% for c in classes %}
+        <li><a href="{{ url_for('teacher.view_class', class_id=c.id) }}">{{ c.class_name }}</a></li>
+    {% else %}
+        <li>No classes yet. Create one above.</li>
+    {% endfor %}
+</ul>
 </html>
