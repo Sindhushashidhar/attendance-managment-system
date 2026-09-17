@@ -1,7 +1,9 @@
+from flask_login import current_user
 from flask import Flask
 from flask_login import LoginManager
 from models.models import db, User
 from routes.auth_routes import auth
+from routes.teacher_routes import teacher
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///attendance.db'
@@ -18,6 +20,7 @@ def load_user(user_id):
     return User.query.get(int(user_id))
 
 app.register_blueprint(auth)
+app.register_blueprint(teacher)
 
 with app.app_context():
     db.create_all()

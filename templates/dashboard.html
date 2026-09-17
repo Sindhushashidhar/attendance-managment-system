@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html>
+<head><title>Teacher Dashboard</title></head>
+<body>
+    <h2>Welcome, {{ current_user.name }}</h2>
+    <a href="{{ url_for('teacher.create_class') }}">+ Create New Class</a>
+    <a href="{{ url_for('auth.logout') }}">Logout</a>
+
+    <h3>Your Classes</h3>
+    <ul>
+        {% for c in classes %}
+            <li>{{ c.class_name }}</li>
+        {% else %}
+            <li>No classes yet. Create one above.</li>
+        {% endfor %}
+    </ul>
+</body>
+</html>

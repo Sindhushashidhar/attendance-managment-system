@@ -1,0 +1,12 @@
+<!DOCTYPE html>
+<html>
+<head><title>Create Class</title></head>
+<body>
+    <h2>Create a New Class</h2>
+    <form method="POST">
+        <input type="text" name="class_name" placeholder="e.g. BCA 3rd Year Section A" required>
+        <button type="submit">Create</button>
+    </form>
+    <a href="{{ url_for('teacher.dashboard') }}">Back to Dashboard</a>
+</body>
+</html>
