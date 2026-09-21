@@ -1,3 +1,5 @@
+from datetime import date, datetime
+from models.models import Attendance
 from werkzeug.security import generate_password_hash
 from models.models import User, Student
 from flask import Blueprint, render_template, redirect, url_for, request, flash
@@ -85,3 +87,58 @@ def view_class(class_id):
 
     students = Student.query.filter_by(class_id=class_id).all()
     return render_template('view_class.html', class_obj=class_obj, students=students)
+@teacher.route('/class/<int:class_id>/attendance', methods=['GET', 'POST'])
+@login_required
+def mark_attendance(class_id):
+    if current_user.role != 'teacher':
+        return "Access denied. Teachers only.", 403
+
+    class_obj = StudentClass.query.get_or_404(class_id)
+    if class_obj.teacher_id != current_user.id:
+        return "Access denied. Not your class.", 403
+
+    selected_date_str = request.args.get('date') or request.form.get('date')
+    if selected_date_str:
+        selected_date = datetime.strptime(selected_date_str, '%Y-%m-%d').date()
+    else:
+        selected_date = date.today()
+
+    students = Student.query.filter_by(class_id=class_id).all()
+
+    if request.method == 'POST':
+        for student in students:
+            status = request.form.get(f'status_{student.id}', 'absent')
+
+            existing_record = Attendance.query.filter_by(
+                student_id=student.id,
+                class_id=class_id,
+                date=selected_date
+            ).first()
+
+            if existing_record:
+                existing_record.status = status
+            else:
+                new_record = Attendance(
+                    student_id=student.id,
+                    class_id=class_id,
+                    date=selected_date,
+                    status=status
+                )
+                db.session.add(new_record)
+
+        db.session.commit()
+        flash(f'Attendance saved for {selected_date}.')
+        return redirect(url_for('teacher.mark_attendance', class_id=class_id, date=selected_date_str or selected_date.isoformat()))
+
+    existing_attendance = {}
+    records = Attendance.query.filter_by(class_id=class_id, date=selected_date).all()
+    for r in records:
+        existing_attendance[r.student_id] = r.status
+
+    return render_template(
+        'mark_attendance.html',
+        class_obj=class_obj,
+        students=students,
+        selected_date=selected_date,
+        existing_attendance=existing_attendance
+    )

@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head><title>Mark Attendance - {{ class_obj.class_name }}</title></head>
+<body>
+    <h2>Mark Attendance: {{ class_obj.class_name }}</h2>
+
+    <form method="GET">
+        <label>Date:</label>
+        <input type="date" name="date" value="{{ selected_date }}" onchange="this.form.submit()">
+    </form>
+
+    <form method="POST">
+        <input type="hidden" name="date" value="{{ selected_date }}">
+        <table border="1" cellpadding="8">
+            <tr><th>Roll No</th><th>Name</th><th>Present</th></tr>
+            {% for s in students %}
+            <tr>
+                <td>{{ s.roll_number }}</td>
+                <td>{{ s.student_user.name if s.student_user else 'Unknown' }}</td>
+                <td>
+                    <select name="status_{{ s.id }}">
+                        <option value="present" {% if existing_attendance.get(s.id) == 'present' %}selected{% endif %}>Present</option>
+                        <option value="absent" {% if existing_attendance.get(s.id) == 'absent' or s.id not in existing_attendance %}selected{% endif %}>Absent</option>
+                    </select>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="3">No students in this class yet.</td></tr>
+            {% endfor %}
+        </table>
+        <br>
+        <button type="submit">Save Attendance</button>
+    </form>
+
+    <a href="{{ url_for('teacher.view_class', class_id=class_obj.id) }}">Back to Class</a>
+</body>
+</html>

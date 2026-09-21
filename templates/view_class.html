@@ -4,6 +4,7 @@
 <body>
     <h2>{{ class_obj.class_name }}</h2>
     <a href="{{ url_for('teacher.add_student', class_id=class_obj.id) }}">+ Add Student</a>
+    <a href="{{ url_for('teacher.mark_attendance', class_id=class_obj.id) }}">Mark Attendance</a>
     <a href="{{ url_for('teacher.dashboard') }}">Back to Dashboard</a>
 
     <h3>Students</h3>
