@@ -1,37 +1,80 @@
-<!DOCTYPE html>
-<html>
-<head><title>Mark Attendance - {{ class_obj.class_name }}</title></head>
-<body>
-    <h2>Mark Attendance: {{ class_obj.class_name }}</h2>
+{% extends "base.html" %}
+{% block title %}Mark Attendance{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-end flex-wrap mb-4">
+    <div>
+        <h3 class="fw-bold mb-1">{{ class_obj.class_name }}</h3>
+        <form method="GET" class="mt-2">
+            <input type="date" name="date" value="{{ selected_date }}" class="form-control" style="max-width: 220px;" onchange="this.form.submit()">
+        </form>
+    </div>
+    <div class="mt-3 mt-md-0">
+        <button type="button" class="btn btn-success" onclick="markAll('present')"><i class="bi bi-check-all"></i> All Present</button>
+        <button type="button" class="btn btn-danger" onclick="markAll('absent')"><i class="bi bi-x-lg"></i> All Absent</button>
+    </div>
+</div>
 
-    <form method="GET">
-        <label>Date:</label>
-        <input type="date" name="date" value="{{ selected_date }}" onchange="this.form.submit()">
-    </form>
+<div class="card p-3 mb-4">
+    <div class="d-flex justify-content-between mb-2">
+        <span class="fw-semibold text-success"><i class="bi bi-emoji-smile"></i> Present: <span id="presentCount">0</span></span>
+        <span class="fw-semibold text-danger"><i class="bi bi-emoji-frown"></i> Absent: <span id="absentCount">0</span></span>
+        <span class="fw-semibold" style="color: var(--primary);"><span id="percent">0</span>%</span>
+    </div>
+    <div class="progress" style="height: 14px; border-radius: 10px;">
+        <div id="bar" class="progress-bar bg-success" style="width: 0%; transition: width 0.4s ease;"></div>
+    </div>
+</div>
 
-    <form method="POST">
-        <input type="hidden" name="date" value="{{ selected_date }}">
-        <table border="1" cellpadding="8">
-            <tr><th>Roll No</th><th>Name</th><th>Present</th></tr>
-            {% for s in students %}
-            <tr>
-                <td>{{ s.roll_number }}</td>
-                <td>{{ s.student_user.name if s.student_user else 'Unknown' }}</td>
-                <td>
-                    <select name="status_{{ s.id }}">
-                        <option value="present" {% if existing_attendance.get(s.id) == 'present' %}selected{% endif %}>Present</option>
-                        <option value="absent" {% if existing_attendance.get(s.id) == 'absent' or s.id not in existing_attendance %}selected{% endif %}>Absent</option>
-                    </select>
-                </td>
-            </tr>
-            {% else %}
-            <tr><td colspan="3">No students in this class yet.</td></tr>
-            {% endfor %}
-        </table>
-        <br>
-        <button type="submit">Save Attendance</button>
-    </form>
+<form method="POST">
+    <input type="hidden" name="date" value="{{ selected_date }}">
+    <div class="row g-3">
+        {% for s in students %}
+        <div class="col-md-6">
+            <div class="card p-3 hover-lift">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <span class="badge rounded-pill text-bg-primary">Roll {{ s.roll_number }}</span>
+                        <div class="fw-semibold mt-1">{{ s.student_user.name if s.student_user else 'Unknown' }}</div>
+                    </div>
+                    <div class="btn-group">
+                        <input type="radio" class="btn-check status-radio" name="status_{{ s.id }}" id="p{{ s.id }}" value="present"
+                               {% if existing_attendance.get(s.id) == 'present' %}checked{% endif %}>
+                        <label class="btn btn-outline-success" for="p{{ s.id }}"><i class="bi bi-check-lg"></i> Present</label>
 
-    <a href="{{ url_for('teacher.view_class', class_id=class_obj.id) }}">Back to Class</a>
-</body>
-</html>
+                        <input type="radio" class="btn-check status-radio" name="status_{{ s.id }}" id="a{{ s.id }}" value="absent"
+                               {% if existing_attendance.get(s.id) != 'present' %}checked{% endif %}>
+                        <label class="btn btn-outline-danger" for="a{{ s.id }}"><i class="bi bi-x-lg"></i> Absent</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <p class="text-muted">No students in this class yet.</p>
+        {% endfor %}
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-lg mt-4"><i class="bi bi-save"></i> Save Attendance</button>
+    <a href="{{ url_for('teacher.view_class', class_id=class_obj.id) }}" class="btn btn-link mt-4">← Back to Class</a>
+</form>
+
+<script>
+    function updateCounts() {
+        const present = document.querySelectorAll('input[value="present"]:checked').length;
+        const total = document.querySelectorAll('input[value="present"]').length;
+        const absent = total - present;
+        const percent = total ? Math.round((present / total) * 100) : 0;
+        document.getElementById('presentCount').textContent = present;
+        document.getElementById('absentCount').textContent = absent;
+        document.getElementById('percent').textContent = percent;
+        document.getElementById('bar').style.width = percent + '%';
+    }
+
+    function markAll(status) {
+        document.querySelectorAll('input[value="' + status + '"]').forEach(r => r.checked = true);
+        updateCounts();
+    }
+
+    document.querySelectorAll('.status-radio').forEach(r => r.addEventListener('change', updateCounts));
+    updateCounts();
+</script>
+{% endblock %}
