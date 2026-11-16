@@ -1,0 +1,100 @@
+{% extends "base.html" %}
+{% block title %}Report{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-end flex-wrap mb-4">
+    <div>
+        <h3 class="fw-bold mb-0">📊 {{ class_obj.class_name }} — Report</h3>
+        <small class="text-muted">Students below 75% are flagged in red</small>
+    </div>
+    <form method="GET" class="d-flex gap-2 align-items-end mt-3 mt-md-0">
+        <div>
+            <label class="form-label mb-0 small">From</label>
+            <input type="date" name="start" value="{{ start }}" class="form-control">
+        </div>
+        <div>
+            <label class="form-label mb-0 small">To</label>
+            <input type="date" name="end" value="{{ end }}" class="form-control">
+        </div>
+        <button class="btn btn-primary"><i class="bi bi-funnel"></i> Filter</button>
+    </form>
+</div>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card class-card grad-0">
+            <i class="bi bi-people-fill" style="font-size:2rem;"></i>
+            <h2 class="mt-2">{{ report|length }}</h2>
+            <small>Total Students</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card class-card grad-2">
+            <i class="bi bi-graph-up-arrow" style="font-size:2rem;"></i>
+            <h2 class="mt-2">
+                {% if report %}{{ (report|sum(attribute='percent') / report|length)|round|int }}{% else %}0{% endif %}%
+            </h2>
+            <small>Class Average</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card class-card grad-1">
+            <i class="bi bi-exclamation-triangle-fill" style="font-size:2rem;"></i>
+            <h2 class="mt-2">{{ report|selectattr('low')|list|length }}</h2>
+            <small>Below 75%</small>
+        </div>
+    </div>
+</div>
+
+<div class="card p-4 mb-4">
+    <canvas id="attendanceChart" height="110"></canvas>
+</div>
+
+<div class="card">
+    <table class="table table-hover mb-0 align-middle">
+        <thead class="table-light">
+            <tr><th>Roll</th><th>Name</th><th>Present / Total</th><th style="width:35%">Attendance</th></tr>
+        </thead>
+        <tbody>
+            {% for r in report %}
+            <tr>
+                <td>{{ r.roll }}</td>
+                <td>{{ r.name }}
+                    {% if r.low %}<span class="badge text-bg-danger ms-2">⚠ Low</span>{% endif %}
+                </td>
+                <td>{{ r.present }} / {{ r.total }}</td>
+                <td>
+                    <div class="progress" style="height: 18px; border-radius: 10px;">
+                        <div class="progress-bar {{ 'bg-danger' if r.low else 'bg-success' }}" style="width: {{ r.percent }}%">{{ r.percent }}%</div>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-muted text-center py-4">No students yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<a href="{{ url_for('teacher.view_class', class_id=class_obj.id) }}" class="btn btn-link mt-3">← Back to Class</a>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script>
+    const data = {{ report|tojson }};
+    new Chart(document.getElementById('attendanceChart'), {
+        type: 'bar',
+        data: {
+            labels: data.map(r => r.name),
+            datasets: [{
+                label: 'Attendance %',
+                data: data.map(r => r.percent),
+                backgroundColor: data.map(r => r.low ? '#ff5c7a' : '#20c997'),
+                borderRadius: 10
+            }]
+        },
+        options: {
+            scales: { y: { beginAtZero: true, max: 100 } },
+            plugins: { legend: { display: false } }
+        }
+    });
+</script>
+{% endblock %}

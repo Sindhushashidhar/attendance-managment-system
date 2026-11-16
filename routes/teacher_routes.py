@@ -142,3 +142,46 @@ def mark_attendance(class_id):
         selected_date=selected_date,
         existing_attendance=existing_attendance
     )
+@teacher.route('/class/<int:class_id>/report')
+@login_required
+def class_report(class_id):
+    if current_user.role != 'teacher':
+        return "Access denied. Teachers only.", 403
+
+    class_obj = StudentClass.query.get_or_404(class_id)
+    if class_obj.teacher_id != current_user.id:
+        return "Access denied. Not your class.", 403
+
+    start_str = request.args.get('start')
+    end_str = request.args.get('end')
+
+    students = Student.query.filter_by(class_id=class_id).all()
+    report = []
+
+    for s in students:
+        query = Attendance.query.filter_by(student_id=s.id, class_id=class_id)
+        if start_str:
+            query = query.filter(Attendance.date >= datetime.strptime(start_str, '%Y-%m-%d').date())
+        if end_str:
+            query = query.filter(Attendance.date <= datetime.strptime(end_str, '%Y-%m-%d').date())
+
+        total = query.count()
+        present = query.filter_by(status='present').count()
+        percent = round(present / total * 100) if total else 0
+
+        report.append({
+            'roll': s.roll_number,
+            'name': s.student_user.name if s.student_user else 'Unknown',
+            'present': present,
+            'total': total,
+            'percent': percent,
+            'low': total > 0 and percent < 75
+        })
+
+    return render_template(
+        'report.html',
+        class_obj=class_obj,
+        report=report,
+        start=start_str or '',
+        end=end_str or ''
+    )
