@@ -1,9 +1,10 @@
 from flask_login import current_user
-from flask import Flask
+from flask import Flask, redirect, url_for
 from flask_login import LoginManager
 from models.models import db, User
 from routes.auth_routes import auth
 from routes.teacher_routes import teacher
+from routes.student_routes import student
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///attendance.db'
@@ -21,13 +22,19 @@ def load_user(user_id):
 
 app.register_blueprint(auth)
 app.register_blueprint(teacher)
+app.register_blueprint(student)
 
 with app.app_context():
     db.create_all()
 
+
 @app.route('/')
 def home():
-    return 'Hello, Attendance System! You are logged in.'
+    if current_user.is_authenticated:
+        if current_user.role == 'teacher':
+            return redirect(url_for('teacher.dashboard'))
+        return redirect(url_for('student.my_attendance'))
+    return redirect(url_for('auth.login'))
 
 if __name__ == '__main__':
     app.run(debug=True)

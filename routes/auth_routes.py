@@ -40,7 +40,9 @@ def login():
         user = User.query.filter_by(email=email).first()
         if user and check_password_hash(user.password_hash, password):
             login_user(user)
-            return redirect(url_for('teacher.dashboard'))
+            if user.role == 'teacher':
+                return redirect(url_for('teacher.dashboard'))
+            return redirect(url_for('student.my_attendance'))
         else:
             flash('Invalid email or password.')
 

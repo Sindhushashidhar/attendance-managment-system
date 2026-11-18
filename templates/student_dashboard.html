@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% block title %}My Attendance{% endblock %}
+{% block content %}
+{% if not record %}
+    <div class="card p-4 text-center">
+        <h5>You are not enrolled in any class yet.</h5>
+        <p class="text-muted mb-0">Ask your teacher to add you to a class.</p>
+    </div>
+{% else %}
+<h3 class="fw-bold mb-1">👋 Hi, {{ current_user.name }}</h3>
+<p class="text-muted">{{ class_obj.class_name }} · Roll {{ record.roll_number }}</p>
+
+{% if low %}
+<div class="alert alert-danger"><i class="bi bi-exclamation-triangle-fill"></i>
+    Your attendance is below 75%. Please attend regularly.</div>
+{% endif %}
+
+<div class="row g-4 mb-4">
+    <div class="col-md-4">
+        <div class="card class-card {{ 'grad-1' if low else 'grad-2' }}">
+            <i class="bi bi-percent" style="font-size:2rem;"></i>
+            <h2 class="mt-2">{{ percent }}%</h2>
+            <small>Overall Attendance</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card class-card grad-0">
+            <i class="bi bi-check-circle-fill" style="font-size:2rem;"></i>
+            <h2 class="mt-2">{{ present }}</h2>
+            <small>Days Present</small>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="card class-card grad-3">
+            <i class="bi bi-x-circle-fill" style="font-size:2rem;"></i>
+            <h2 class="mt-2">{{ absent }}</h2>
+            <small>Days Absent</small>
+        </div>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">Attendance History</div>
+    <table class="table table-hover mb-0">
+        <thead class="table-light"><tr><th>Date</th><th>Status</th></tr></thead>
+        <tbody>
+            {% for e in entries %}
+            <tr>
+                <td>{{ e.date.strftime('%d %b %Y') }}</td>
+                <td>
+                    {% if e.status == 'present' %}
+                        <span class="badge text-bg-success">✅ Present</span>
+                    {% else %}
+                        <span class="badge text-bg-danger">❌ Absent</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="2" class="text-muted text-center py-4">No attendance marked yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+{% endblock %}
