@@ -8,7 +8,7 @@ from routes.student_routes import student
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///attendance.db'
-app.config['SECRET_KEY'] = 'change-this-later-to-something-random'
+app.config['SECRET_KEY'] = 'e27769b9fb62721182bf42e6db708ebdb48364de7d46a2dc6d2138eb2d475330'
 
 db.init_app(app)
 
