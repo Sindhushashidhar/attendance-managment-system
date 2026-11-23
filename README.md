@@ -35,18 +35,25 @@ A web application that lets teachers create classes, add students and mark daily
 
 ## Screenshots
 
+### Login and Home
 
-
-| Teacher Dashboard | Mark Attendance |
+| Login Page | Home Page |
 |---|---|
-| ![Dashboard]("C:\Users\MY PC\Downloads\attendance-managment-system\screenshots\adding student.png") | ![Mark Attendance]("C:\Users\MY PC\Downloads\attendance-managment-system\screenshots\marking attendance.png") |
-"C:\Users\MY PC\Downloads\attendance-managment-system\screenshots\student attendance.png"
+| ![Login Page](screenshots/login%20page.png) | ![Home Page](screenshots/home%20page.png) |
 
-| Attendance Report | Student View |
+### Teacher
+
+| Adding a Student | Marking Attendance |
 |---|---|
-| ![Report]("C:\Users\MY PC\Downloads\attendance-managment-system\screenshots\attendance report.png") | ![Student]("C:\Users\MY PC\Downloads\attendance-managment-system\screenshots\student attendance.png") |
-"C:\Users\MY PC\Downloads\attendance-managment-system\screenshots\login page.png"
-"C:\Users\MY PC\Downloads\attendance-managment-system\screenshots\home page.png"
+| ![Adding Student](screenshots/adding%20student.png) | ![Marking Attendance](screenshots/marking%20attendance.png) |
+
+| Attendance Report | Students Attendance List |
+|---|---|
+| ![Attendance Report](screenshots/attendance%20report.png) | ![Students Attendance List](screenshots/students%20attendance%20list.png) |
+
+### Student
+
+![Student Attendance](screenshots/student%20attendance.png)
 
 ## Database Design
 
@@ -125,6 +132,6 @@ python app.py
 ## Author
 
 **Sindhu Shashidhar**
-MCA (VTU) | Lecturer | Aspiring Software Developer
+Lecturer | Aspiring Software Developer
 
 GitHub: [Sindhushashidhar](https://github.com/Sindhushashidhar)
